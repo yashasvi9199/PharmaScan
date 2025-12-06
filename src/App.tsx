@@ -1,35 +1,24 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+export default function App() : React.ReactNode {
+  return(
+    <div className="min-h-screen flex item-center justify-center bg-gray-50">
+      <main className="max-w-2xl w-full p-8 bg-white rounded-2xl shadow">
+        <h1 className="text-2xl font-semibold mb-2">
+          App running
+        </h1>
+        <p className="text-sm text-gray-600">
+          Tailwind is wired. If you see spacing, rounded corners and shadows, the css pipeline is working
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+        <div className="mt-6 flex gap-3">
+          <button className="px-4 py-2 rounded bg-sky-600 text-white hover:bg-sky-700">
+            Primary
+          </button>
+          <button className="px-4 py-2 rounded border border-gray-200 hover:bg-gray-100">
+            Secondary
+          </button>
+        </div>
+      </main>
+    </div>
   )
 }
-
-export default App
