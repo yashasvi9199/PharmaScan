@@ -14,13 +14,24 @@ export async function uploadScan(form: FormData): Promise<ScanResponse> {
     throw new Error(`scan upload failed: ${res.status} ${res.statusText} ${text}`);
   }
 
-  const data = (await res.json().catch(() => ({}))) as Partial<ScanResponse>;
+  // parse JSON safely
+  const parsed = await res.json().catch(() => null);
+  const data = (parsed ?? {}) as Partial<ScanResponse>;
+
+  // normalize raw so TypeScript understands nested fields
+  const raw = (data.raw ?? undefined) as ScanResponse["raw"] | undefined;
+
+  const extracted =
+    data.extractedText ??
+    (typeof raw?.ocr?.text === "string" ? raw.ocr.text : undefined) ??
+    (typeof raw?.text === "string" ? (raw.text as unknown as string) : undefined) ??
+    "";
 
   return {
     id: data.id ?? `local-${Date.now()}`,
-    extractedText: data.extractedText ?? data.raw?.ocr?.text ?? data.raw?.text ?? "",
-    confidence: data.confidence ?? data.raw?.ocr?.confidence,
-    raw: (data.raw ?? undefined) as ScanResponse["raw"],
+    extractedText: extracted,
+    confidence: data.confidence ?? raw?.ocr?.confidence,
+    raw: raw,
     createdAt: data.createdAt,
   };
 }
