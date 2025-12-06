@@ -33,14 +33,15 @@ export default function ImageUploader({ onScanComplete }: Props) {
     e.currentTarget.value = "";
   };
 
-  const onDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
+  // Use label element handlers typed to HTMLLabelElement to satisfy TS.
+  const onDrop: React.DragEventHandler<HTMLLabelElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
     const f = e.dataTransfer.files?.[0];
     if (f) handleFile(f);
   };
 
-  const onDragOver: React.DragEventHandler<HTMLDivElement> = (e) => {
+  const onDragOver: React.DragEventHandler<HTMLLabelElement> = (e) => {
     e.preventDefault();
   };
 
@@ -52,6 +53,7 @@ export default function ImageUploader({ onScanComplete }: Props) {
         onDragOver={onDragOver}
       >
         <input
+          id="scan-file-input"
           type="file"
           accept="image/*"
           onChange={onInputChange}
