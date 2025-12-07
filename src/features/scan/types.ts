@@ -1,48 +1,41 @@
-/* Bounding box in image coordinates */ 
-export type BBox = {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+// Types used across scan frontend feature.
+export type ScanResponse = {
+  // OCRed primary text MUST be present (backend guarantees `text`).
+  text: string;
+
+  // Confidence reported by backend (0-100 or 0-1; frontend should tolerate either).
+  confidence?: number;
+
+  // Optional language code or detected lang
+  lang?: string;
+
+  // Optional bounding boxes, per-word metadata, etc.
+  meta?: {
+    boxes?: Array<{
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      text?: string;
+      confidence?: number;
+    }>;
+    [k: string]: unknown;
+  };
+
+  // Raw backend payload for debugging or future fields
+  raw?: unknown;
 };
 
-/* Indivisual OCR block */ 
-export type OCRBlock = {
-    text: string;
-    confidence?: number;
-    bbox?: BBox
+export type ScanRequestPayload = {
+  // File upload handled as FormData on frontend; helper type if needed
+  fileName?: string;
+  fileSize?: number;
 };
 
-/* Full OCR result provided by provider or worker */ 
-export type OCRResults ={
-    text?: string;
-    lines?: string[];
-    blocks?: OCRBlock[];
-    confidence?: number;
+export type OCRResultForUI = {
+  text: string;
+  confidence?: number;
+  // parsed lines or tokens useful for UI features
+  lines?: string[];
+  raw?: unknown;
 };
-
-/* Basic image info */
-export type ScanImageInfo = {
-    width?: number;
-    height?: number;
-    format?: string;    //"jpeg" | "png" | "webp"
-};
-
-/* Metadata */
-export type ScanMetadata = Record<string, string | number | boolean>;
-
-/* Raw payload */
-export type ScanRaw = {
-    ocr?: OCRResults;
-    image?: ScanImageInfo;
-    metadata?: ScanMetadata;
-} & Record<string, unknown>;
-
-/* Response returned */
-export interface ScanResponse {
-    id: string;
-    extractedText: string;
-    confidence?: number;
-    raw?: ScanRaw;
-    createdAt?: string;
-}
