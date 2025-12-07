@@ -1,71 +1,29 @@
 import { useState } from "react";
-import { uploadForScan } from "../../lib/api/scanApi";
+import ImageUploader from "./components/ImageUploader";
+import type { ScanResponse } from "./types";
 
 export default function ScanView() {
   const [ocrText, setOcrText] = useState<string>("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
 
-  async function handleFile(file: File | null) {
-    if (!file) return;
-    setFileName(file.name);
+  function handleScanComplete(res: ScanResponse) {
     setError(null);
-    setOcrText("");
-    setLoading(true);
-
-    try {
-      const data = await uploadForScan(file);
-
-      if (typeof data === "string") {
-        setOcrText(data);
-      } else if (data?.text) {
-        setOcrText(String(data.text));
-      } else {
-        setOcrText(JSON.stringify(data));
-      }
-    } catch (err: any) {
-      setError(err?.message ?? String(err));
-    } finally {
-      setLoading(false);
+    if (typeof res === "string") {
+      setOcrText(res);
+      return;
     }
-  }
-
-  function onFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] ?? null;
-    handleFile(file);
+    if (res?.text) {
+      setOcrText(String(res.text));
+      return;
+    }
+    setOcrText(JSON.stringify(res));
   }
 
   return (
     <section>
-      <label className="block mb-2 font-medium">Choose image or photo</label>
-
-      <div className="flex items-center gap-3 mb-4">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={onFileInputChange}
-          className="block"
-        />
-        <div>
-          <button
-            type="button"
-            onClick={() => {}}
-            className="px-3 py-1 border rounded"
-            disabled
-            aria-hidden
-            title="No-op placeholder"
-          >
-            Upload
-          </button>
-        </div>
+      <div className="mb-6">
+        <ImageUploader onScanComplete={handleScanComplete} maxSizeBytes={5 * 1024 * 1024} />
       </div>
-
-      {fileName && (
-        <div className="text-sm text-gray-600 mb-2">Selected: {fileName}</div>
-      )}
-
-      {loading && <div className="mb-2">Scanning…</div>}
 
       {error && (
         <div className="mb-2 text-sm text-red-600">
@@ -80,7 +38,7 @@ export default function ScanView() {
           onChange={(e) => setOcrText(e.target.value)}
           rows={10}
           className="w-full p-2 border rounded resize-y"
-          placeholder={loading ? "Scanning..." : "OCR output will appear here"}
+          placeholder="OCR output will appear here"
         />
       </div>
     </section>
