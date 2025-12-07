@@ -1,4 +1,16 @@
+// src/lib/api/scanApi.ts
 import type { ScanResponse } from "../../features/scan/types";
+
+function pickText(data: any): string {
+  if (!data) return "";
+  // common fields we have seen: text, extractedText, extracted_text
+  return (
+    (typeof data.text === "string" && data.text) ||
+    (typeof data.extractedText === "string" && data.extractedText) ||
+    (typeof data.extracted_text === "string" && data.extracted_text) ||
+    ""
+  );
+}
 
 export async function uploadForScan(file: File): Promise<ScanResponse> {
   const form = new FormData();
@@ -16,12 +28,18 @@ export async function uploadForScan(file: File): Promise<ScanResponse> {
 
   const data = await res.json();
 
-  // Normalize backend → UI shape cleanly
+  const text = pickText(data);
+
+  // defensive: if text ended up empty, keep raw so caller can inspect
+  if (!text) {
+    console.debug("uploadForScan: response payload had no text field", data);
+  }
+
   return {
-    text: data.text,
+    text,
     confidence: data.confidence,
     lang: data.lang,
     meta: data.meta,
-    raw: data.raw ?? data,
+    raw: data,
   };
 }
