@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { uploadForScan } from "../../lib/api/scanApi";
 
 export default function ScanView() {
   const [ocrText, setOcrText] = useState<string>("");
@@ -14,21 +15,8 @@ export default function ScanView() {
     setLoading(true);
 
     try {
-      const fd = new FormData();
-      fd.append("file", file);
+      const data = await uploadForScan(file);
 
-      const res = await fetch("/api/scan", {
-        method: "POST",
-        body: fd,
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `${res.status} ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      // backend should return { text: string, confidence?: number, ... }
       if (typeof data === "string") {
         setOcrText(data);
       } else if (data?.text) {
@@ -62,10 +50,7 @@ export default function ScanView() {
         <div>
           <button
             type="button"
-            onClick={() => {
-              // trigger click on input programmatically if needed in future
-              // kept minimal for now
-            }}
+            onClick={() => {}}
             className="px-3 py-1 border rounded"
             disabled
             aria-hidden
