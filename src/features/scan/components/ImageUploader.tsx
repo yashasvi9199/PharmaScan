@@ -1,22 +1,28 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import type { ScanResponse } from "../types";
-import { uploadScanFile } from "../api";
+import { uploadForScan } from "../../../lib/api/scanApi";
 
 type Props = {
   onScanComplete?: (res: ScanResponse) => void;
+  maxSizeBytes?: number;
 };
 
-export default function ImageUploader({ onScanComplete }: Props) {
+export default function ImageUploader({ onScanComplete, maxSizeBytes }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFile = useCallback(
     async (file: File) => {
       setError(null);
+      if (maxSizeBytes && file.size > maxSizeBytes) {
+        setError(`File too large. Max ${Math.round(maxSizeBytes / 1024)} KB`);
+        return;
+      }
+
       setLoading(true);
       try {
-        const res = await uploadScanFile(file, file.name);
-        onScanComplete?.(res);
+        const res = await uploadForScan(file);
+        onScanComplete?.(res as ScanResponse);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
@@ -24,7 +30,7 @@ export default function ImageUploader({ onScanComplete }: Props) {
         setLoading(false);
       }
     },
-    [onScanComplete]
+    [onScanComplete, maxSizeBytes]
   );
 
   const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -33,7 +39,6 @@ export default function ImageUploader({ onScanComplete }: Props) {
     e.currentTarget.value = "";
   };
 
-  // Use label element handlers typed to HTMLLabelElement to satisfy TS.
   const onDrop: React.DragEventHandler<HTMLLabelElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -61,15 +66,13 @@ export default function ImageUploader({ onScanComplete }: Props) {
           aria-label="Upload image for scanning"
         />
         <div className="space-y-2">
-          <div className="text-sm">Drop an image here, or click to select</div>
-          <div className="text-xs text-muted-foreground">
-            Supported: jpeg, png, webp. Max size depends on server config.
+          <div className="text-sm">
+            {loading ? "Uploading & processing…" : "Drop an image here, or click to select"}
           </div>
-          {loading ? (
-            <div className="text-sm">Uploading & processing…</div>
-          ) : (
-            <div className="text-sm">Ready</div>
-          )}
+          <div className="text-xs text-muted-foreground">
+            Supported: jpeg, png, webp. {maxSizeBytes ? `Max ${(maxSizeBytes / 1024) | 0} KB.` : ""}
+          </div>
+
           {error && <div className="text-sm text-red-600">Error: {error}</div>}
         </div>
       </label>
