@@ -14,15 +14,17 @@ export default function ImageUploader({ onScanComplete, maxSizeBytes }: Props) {
   const handleFile = useCallback(
     async (file: File) => {
       setError(null);
+
       if (maxSizeBytes && file.size > maxSizeBytes) {
-        setError(`File too large. Max ${Math.round(maxSizeBytes / 1024)} KB`);
+        setError(`File too large. Max ${(maxSizeBytes / 1024).toFixed(0)} KB`);
         return;
       }
 
       setLoading(true);
       try {
-        const res = await uploadForScan(file);
-        onScanComplete?.(res as ScanResponse);
+        const result = await uploadForScan(file);
+
+        onScanComplete?.(result);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
@@ -56,6 +58,7 @@ export default function ImageUploader({ onScanComplete, maxSizeBytes }: Props) {
         className="block p-6 border-2 border-dashed rounded-md text-center cursor-pointer"
         onDrop={onDrop}
         onDragOver={onDragOver}
+        htmlFor="scan-file-input"
       >
         <input
           id="scan-file-input"
@@ -65,12 +68,14 @@ export default function ImageUploader({ onScanComplete, maxSizeBytes }: Props) {
           className="hidden"
           aria-label="Upload image for scanning"
         />
+
         <div className="space-y-2">
-          <div className="text-sm">
-            {loading ? "Uploading & processing…" : "Drop an image here, or click to select"}
+          <div className="text-sm font-medium">
+            {loading ? "Uploading & processing…" : "Drop or click to select"}
           </div>
-          <div className="text-xs text-muted-foreground">
-            Supported: jpeg, png, webp. {maxSizeBytes ? `Max ${(maxSizeBytes / 1024) | 0} KB.` : ""}
+
+          <div className="text-xs text-gray-500">
+            Supported: jpeg, png, webp{maxSizeBytes ? ` • Max ${(maxSizeBytes / 1024).toFixed(0)} KB` : ""}
           </div>
 
           {error && <div className="text-sm text-red-600">Error: {error}</div>}
