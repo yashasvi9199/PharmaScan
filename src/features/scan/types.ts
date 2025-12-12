@@ -1,4 +1,13 @@
 // Types used across scan frontend feature.
+
+// Detected drug from dictionary matching
+export type DetectedDrug = {
+  slug: string;
+  name: string;
+  confidence: number;
+  atc?: string | null;
+};
+
 export type ScanResponse = {
   // OCRed primary text MUST be present (backend guarantees `text`).
   text: string;
@@ -8,6 +17,9 @@ export type ScanResponse = {
 
   // Optional language code or detected lang
   lang?: string;
+
+  // Detected drugs from dictionary matching
+  detectedDrugs?: DetectedDrug[];
 
   // Optional bounding boxes, per-word metadata, etc.
   meta?: {

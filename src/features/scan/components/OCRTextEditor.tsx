@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { ScanResponse } from "../types";
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function OCRTextEditor({ scan, onSave, onCancel }: Props) {
-  const [text, setText] = useState<string>(scan.extractedText ?? "");
+  const [text, setText] = useState<string>(scan.text ?? "");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -16,7 +16,7 @@ export default function OCRTextEditor({ scan, onSave, onCancel }: Props) {
     try {
       const updated: ScanResponse = {
         ...scan,
-        extractedText: text,
+        text: text,
       };
       onSave?.(updated);
     } finally {

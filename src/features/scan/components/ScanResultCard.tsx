@@ -1,4 +1,3 @@
-import React from "react";
 import type { ScanResponse } from "../types";
 
 type Props = {
@@ -6,6 +5,11 @@ type Props = {
 };
 
 export default function ScanResultCard({ result }: Props) {
+  // Access createdAt from raw backend response if available
+  const createdAt = result.raw && typeof result.raw === "object" && "createdAt" in result.raw
+    ? (result.raw as { createdAt?: string }).createdAt
+    : undefined;
+
   return (
     <div className="p-4 border rounded w-full max-w-2xl">
       <h2 className="text-lg font-medium mb-2">Scan Result</h2>
@@ -13,7 +17,7 @@ export default function ScanResultCard({ result }: Props) {
       <div className="mb-3">
         <strong>Extracted Text:</strong>
         <pre className="mt-1 whitespace-pre-wrap text-sm">
-          {result.extractedText || "(empty)"}
+          {result.text || "(empty)"}
         </pre>
       </div>
 
@@ -23,9 +27,9 @@ export default function ScanResultCard({ result }: Props) {
         </div>
       )}
 
-      {result.createdAt && (
-        <div className="text-xs text-muted-foreground">
-          Scanned at: {result.createdAt}
+      {createdAt && (
+        <div className="text-xs text-gray-500">
+          Scanned at: {createdAt}
         </div>
       )}
     </div>

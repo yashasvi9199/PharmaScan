@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ImageUploader from "./components/ImageUploader";
+import DetectedDrugsList from "./components/DetectedDrugsList";
 import type { ScanResponse } from "./types";
 
 export default function ScanView() {
@@ -25,25 +26,42 @@ export default function ScanView() {
       )}
 
       {result && (
-        <div className="space-y-3">
-          <div>
-            <label className="block mb-1 font-medium">OCR Result</label>
-            <textarea
-              value={result.text}
-              onChange={() => {}}
-              readOnly
-              rows={10}
-              className="w-full p-2 border rounded resize-y"
-            />
-          </div>
-
-          {typeof result.confidence !== "undefined" && (
-            <div className="text-sm text-gray-700">
-              Confidence: <span className="font-medium">{result.confidence}</span>
+        <div className="space-y-6">
+          {/* Detected Drugs Section */}
+          {result.detectedDrugs && result.detectedDrugs.length > 0 && (
+            <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
+              <DetectedDrugsList drugs={result.detectedDrugs} />
             </div>
           )}
+
+          {/* OCR Text Section */}
+          <div className="space-y-3">
+            <div>
+              <label className="block mb-1 font-medium">OCR Result</label>
+              <textarea
+                value={result.text}
+                onChange={() => {}}
+                readOnly
+                rows={10}
+                className="w-full p-2 border rounded resize-y"
+              />
+            </div>
+
+            {typeof result.confidence !== "undefined" && (
+              <div className="text-sm text-gray-700">
+                OCR Confidence: <span className="font-medium">{result.confidence}</span>
+              </div>
+            )}
+
+            {result.detectedDrugs && (
+              <div className="text-sm text-gray-500">
+                Medications found: <span className="font-medium">{result.detectedDrugs.length}</span>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </section>
   );
 }
+
