@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
 const MESSAGES = [
-  "Analyzing image structure...",
-  "Enhancing contrast & sharpness...",
-  "Reading text content...",
-  "Identifying pharmaceutical terms...",
-  "Cross-referencing database...",
-  "Finalizing results..."
+  "Initializing secure connection to PharmaScan AI Core...",
+  "Analyzing image structure and lighting conditions...",
+  "Enhancing contrast for maximum text legibility...",
+  "Applying advanced noise reduction filters...",
+  "Running multi-pass Optical Character Recognition (OCR)...",
+  "Cross-referencing detected text with medical databases...",
+  "Verifying pharmaceutical terminology and dosage patterns...",
+  "Finalizing results and generating confidence scores..."
 ];
 
 export function Loader() {
@@ -15,7 +17,7 @@ export function Loader() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMsgIndex((prev) => (prev + 1) % MESSAGES.length);
-    }, 2000);
+    }, 3500);
     return () => clearInterval(interval);
   }, []);
 
