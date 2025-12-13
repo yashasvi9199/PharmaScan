@@ -1,28 +1,33 @@
 // src/lib/api/scanApi.ts
 import type { ScanResponse, DetectedDrug } from "../../features/scan/types";
 
-function pickText(data: any): string {
-  if (!data) return "";
+function pickText(data: unknown): string {
+  if (!data || typeof data !== "object") return "";
+  const d = data as Record<string, unknown>;
   // common fields we have seen: text, extractedText, extracted_text
   return (
-    (typeof data.text === "string" && data.text) ||
-    (typeof data.extractedText === "string" && data.extractedText) ||
-    (typeof data.extracted_text === "string" && data.extracted_text) ||
+    (typeof d.text === "string" && d.text) ||
+    (typeof d.extractedText === "string" && d.extractedText) ||
+    (typeof d.extracted_text === "string" && d.extracted_text) ||
     ""
   );
 }
 
-function pickDetectedDrugs(data: any): DetectedDrug[] | undefined {
-  if (!data) return undefined;
+function pickDetectedDrugs(data: unknown): DetectedDrug[] | undefined {
+  if (!data || typeof data !== "object") return undefined;
+  const d = data as Record<string, unknown>;
   // Check for detectedDrugs array from backend
-  const drugs = data.detectedDrugs || data.detected_drugs;
+  const drugs = d.detectedDrugs || d.detected_drugs;
   if (Array.isArray(drugs)) {
-    return drugs.map((d: any) => ({
-      slug: d.slug || "",
-      name: d.name || d.canonical || "",
-      confidence: typeof d.confidence === "number" ? d.confidence : 0,
-      atc: d.atc ?? null,
-    }));
+    return drugs.map((drug: unknown) => {
+      const d = drug as Record<string, unknown>;
+      return {
+        slug: typeof d.slug === "string" ? d.slug : "",
+        name: typeof d.name === "string" ? d.name : (typeof d.canonical === "string" ? d.canonical : ""),
+        confidence: typeof d.confidence === "number" ? d.confidence : 0,
+        atc: typeof d.atc === "string" ? d.atc : null,
+      };
+    });
   }
   return undefined;
 }
@@ -43,9 +48,9 @@ export function buildScanForm(
   return form;
 }
 
-/** Upload FormData to backend scan endpoint */
 export async function uploadScan(form: FormData): Promise<ScanResponse> {
-  const res = await fetch("/api/scan", {
+  const apiBase = (import.meta.env.VITE_API_BASE_URL || "") + "/api";
+  const res = await fetch(`${apiBase}/scan`, {
     method: "POST",
     body: form,
   });
@@ -55,19 +60,20 @@ export async function uploadScan(form: FormData): Promise<ScanResponse> {
     throw new Error(text || `${res.status} ${res.statusText}`);
   }
 
-  const data = await res.json();
-  const text = pickText(data);
-
-  if (!text) {
-    console.debug("uploadScan: response payload had no text field", data);
+  const data: unknown = await res.json();
+  if (typeof data !== 'object' || data === null) {
+    throw new Error("Invalid response data format");
   }
+
+  const text = pickText(data);
+  const typedData = data as Record<string, unknown>;
 
   return {
     text,
-    confidence: data.confidence,
-    lang: data.lang,
+    confidence: typeof typedData.confidence === "number" ? typedData.confidence : 0,
+    lang: typeof typedData.lang === "string" ? typedData.lang : "",
     detectedDrugs: pickDetectedDrugs(data),
-    meta: data.meta,
+    meta: typedData.meta as ScanResponse["meta"],
     raw: data,
   };
 }
