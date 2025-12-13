@@ -15,41 +15,40 @@ export default function DetectedDrugsList({ drugs }: Props) {
   }
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-semibold text-gray-700">
-        Detected Medications ({drugs.length})
-      </h3>
-      <ul className="divide-y divide-gray-100 border rounded-lg overflow-hidden">
+    <div className="space-y-3">
+      <ul className="space-y-3">
         {drugs.map((drug) => (
           <li
             key={drug.slug}
-            className="px-4 py-3 bg-white hover:bg-gray-50 transition-colors"
+            className="p-4 bg-white/40 border border-white/40 rounded-xl hover:bg-white/60 transition-all duration-300 shadow-sm"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <span className="font-medium text-gray-900">{drug.name}</span>
-                {drug.atc && (
-                  <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                    ATC: {drug.atc}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-800 text-lg">{drug.name}</span>
+                  {drug.atc && (
+                    <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-full border border-accent/20">
+                      {drug.atc}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="ml-4 flex items-center">
                 <span
-                  className={`text-xs font-medium px-2 py-1 rounded ${
+                  className={`text-xs font-bold px-3 py-1 rounded-full border ${
                     drug.confidence >= 0.9
-                      ? "bg-green-100 text-green-700"
+                      ? "bg-green-100 text-green-700 border-green-200"
                       : drug.confidence >= 0.7
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-orange-100 text-orange-700"
+                      ? "bg-secondary/10 text-secondary border-secondary/20"
+                      : "bg-red-100 text-red-700 border-red-200"
                   }`}
                 >
-                  {Math.round(drug.confidence * 100)}% match
+                  {Math.round(drug.confidence * 100)}%
                 </span>
               </div>
             </div>
-            <div className="text-xs text-gray-400 mt-1">
-              slug: {drug.slug}
+            <div className="text-xs text-gray-500 mt-2 font-mono opacity-70">
+              ID: {drug.slug}
             </div>
           </li>
         ))}
