@@ -17,7 +17,7 @@ export function Loader() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMsgIndex((prev) => (prev + 1) % MESSAGES.length);
-    }, 3500);
+    }, 4500);
     return () => clearInterval(interval);
   }, []);
 
